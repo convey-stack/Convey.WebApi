@@ -8,6 +8,7 @@ namespace Convey.WebApi
     {
         IEndpointsBuilder Get(string path, Func<HttpContext, Task> context = null);
         IEndpointsBuilder Get<T>(string path, Func<T, HttpContext, Task> context = null) where T : class;
+        IEndpointsBuilder Get<T, U>(string path, Func<T, HttpContext, Task> context = null) where T : class;
         IEndpointsBuilder Post(string path, Func<HttpContext, Task> context = null);
         IEndpointsBuilder Post<T>(string path, Func<T, HttpContext, Task> context = null) where T : class;
         IEndpointsBuilder Put(string path, Func<HttpContext, Task> context = null);

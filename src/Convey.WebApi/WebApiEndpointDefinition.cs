@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Net.Sockets;
 
 namespace Convey.WebApi
 {
@@ -19,11 +20,13 @@ namespace Convey.WebApi
         public string In { get; set; }
         public string Type { get; set; }
         public string Name { get; set; }
+        public object Example { get; set; }
     }
     
     public class WebApiEndpointResponse
     {
         public string Type { get; set; }
         public int StatusCode { get; set; }
+        public object Example { get; set; }
     }
 }
