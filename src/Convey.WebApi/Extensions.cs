@@ -11,6 +11,7 @@ using System.Web;
 using Convey.WebApi.Builders;
 using Convey.WebApi.Middlewares;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder.Internal;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Routing;
@@ -30,9 +31,13 @@ namespace Convey.WebApi
         private const string EmptyJsonObject = "{}";
         private const string LocationHeader = "Location";
         private const string JsonContentType = "application/json";
-
-        public static IApplicationBuilder UseEndpoints(this IApplicationBuilder app, Action<IEndpointsBuilder> builder)
-            => app.UseRouter(router => builder(new EndpointsBuilder(router)));
+        
+        public static IApplicationBuilder UseEndpoints(this IApplicationBuilder app, Action<IEndpointsBuilder> build)
+            => app.UseRouter(router =>
+            {
+                var definitions = app.ApplicationServices.GetService<WebApiEndpointDefinitions>();
+                build(new EndpointsBuilder(router, definitions));
+            });
         
         public static IConveyBuilder AddWebApi(this IConveyBuilder builder, string sectionName = SectionName)
         {
@@ -40,8 +45,8 @@ namespace Convey.WebApi
             {
                 return builder;
             }
-
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            builder.Services.AddSingleton(new WebApiEndpointDefinitions());
             builder.Services.AddRouting()
                 .AddLogging()
                 .AddMvcCore()
