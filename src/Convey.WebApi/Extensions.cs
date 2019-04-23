@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using Convey.WebApi.Middlewares;
+using Convey.WebApi.Requests;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -36,13 +37,14 @@ namespace Convey.WebApi
                 var definitions = app.ApplicationServices.GetService<WebApiEndpointDefinitions>();
                 build(new EndpointsBuilder(router, definitions));
             });
-        
+
         public static IConveyBuilder AddWebApi(this IConveyBuilder builder, string sectionName = SectionName)
         {
             if (!builder.TryRegister(RegistryName))
             {
                 return builder;
             }
+
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             builder.Services.AddSingleton(new WebApiEndpointDefinitions());
             builder.Services.AddRouting()
@@ -54,9 +56,17 @@ namespace Convey.WebApi
                 .AddDefaultJsonOptions()
                 .AddAuthorization();
 
+            builder.Services.Scan(s =>
+                s.FromEntryAssembly()
+                    .AddClasses(c => c.AssignableTo(typeof(IRequestHandler<,>)))
+                    .AsImplementedInterfaces()
+                    .WithTransientLifetime());
+
+            builder.Services.AddTransient<IRequestDispatcher, RequestDispatcher>();
+
             return builder;
         }
-        
+
         private static IMvcCoreBuilder AddDefaultJsonOptions(this IMvcCoreBuilder builder)
             => builder.AddJsonOptions(o =>
             {

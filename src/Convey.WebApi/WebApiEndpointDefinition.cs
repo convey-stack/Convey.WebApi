@@ -12,7 +12,7 @@ namespace Convey.WebApi
         public string Method { get; set; }
         public string Path { get; set; }
         public IEnumerable<WebApiEndpointParameter> Parameters { get; set; } = new List<WebApiEndpointParameter>();
-        public IEnumerable<WebApiEndpointResponse> Reposnses { get; set; } = new List<WebApiEndpointResponse>();
+        public IEnumerable<WebApiEndpointResponse> Responses { get; set; } = new List<WebApiEndpointResponse>();
     }
     
     public class WebApiEndpointParameter

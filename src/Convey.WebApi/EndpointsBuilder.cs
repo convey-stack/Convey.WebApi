@@ -113,7 +113,7 @@ namespace Convey.WebApi
             {
                 Method = method, 
                 Path = path,
-                Reposnses = new List<WebApiEndpointResponse>
+                Responses = new List<WebApiEndpointResponse>
                 {
                     new WebApiEndpointResponse
                     {
@@ -150,7 +150,7 @@ namespace Convey.WebApi
                         Example = input is null ? null : Activator.CreateInstance(input)
                     }
                 },
-                Reposnses = new List<WebApiEndpointResponse>
+                Responses = new List<WebApiEndpointResponse>
                 {
                     new WebApiEndpointResponse
                     {
