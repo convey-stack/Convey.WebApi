@@ -23,14 +23,14 @@ using Newtonsoft.Json.Serialization;
 namespace Convey.WebApi
 {
     public static class Extensions
-    {        
+    {
         private static readonly JsonSerializer Serializer = new JsonSerializer();
         private const string SectionName = "webapi";
         private const string RegistryName = "webapi";
         private const string EmptyJsonObject = "{}";
         private const string LocationHeader = "Location";
         private const string JsonContentType = "application/json";
-        
+
         public static IApplicationBuilder UseEndpoints(this IApplicationBuilder app, Action<IEndpointsBuilder> build)
             => app.UseRouter(router =>
             {
@@ -78,7 +78,7 @@ namespace Convey.WebApi
                 o.SerializerSettings.Formatting = Formatting.Indented;
                 o.SerializerSettings.Converters.Add(new StringEnumConverter());
             });
-        
+
         public static IApplicationBuilder UseErrorHandler(this IApplicationBuilder builder)
             => builder.UseMiddleware<ErrorHandlerMiddleware>();
 
@@ -87,13 +87,17 @@ namespace Convey.WebApi
             {
                 ForwardedHeaders = ForwardedHeaders.All
             });
-        
+
+        public static Task<TResult> DispatchAsync<TRequest, TResult>(this HttpContext httpContext, TRequest request)
+            where TRequest : class, IRequest
+            => httpContext.RequestServices.GetService<IRequestHandler<TRequest, TResult>>().HandleAsync(request);
+
         public static T Bind<T>(this T model, Expression<Func<T, object>> expression, object value)
             => model.Bind<T, object>(expression, value);
 
         public static T BindId<T>(this T model, Expression<Func<T, Guid>> expression)
             => model.Bind(expression, Guid.NewGuid());
-        
+
         public static T BindId<T>(this T model, Expression<Func<T, string>> expression)
             => model.Bind(expression, Guid.NewGuid().ToString("N"));
 
@@ -162,25 +166,25 @@ namespace Convey.WebApi
             response.StatusCode = 204;
             return Task.CompletedTask;
         }
-        
+
         public static Task BadRequest(this HttpResponse response)
         {
             response.StatusCode = 400;
             return Task.CompletedTask;
         }
-        
+
         public static Task NotFound(this HttpResponse response)
         {
             response.StatusCode = 404;
             return Task.CompletedTask;
         }
-        
+
         public static Task InternalServerError(this HttpResponse response)
         {
             response.StatusCode = 500;
             return Task.CompletedTask;
         }
-        
+
         public static void WriteJson<T>(this HttpResponse response, T obj)
         {
             response.ContentType = JsonContentType;
@@ -213,7 +217,7 @@ namespace Convey.WebApi
                 return default(T);
             }
         }
-        
+
         public static T ReadQuery<T>(this HttpContext context) where T : class
         {
             var request = context.Request;
