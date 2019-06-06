@@ -57,7 +57,7 @@ namespace Convey.WebApi
                 .AddAuthorization();
 
             builder.Services.Scan(s =>
-                s.FromEntryAssembly()
+                s.FromAssemblies(AppDomain.CurrentDomain.GetAssemblies())
                     .AddClasses(c => c.AssignableTo(typeof(IRequestHandler<,>)))
                     .AsImplementedInterfaces()
                     .WithTransientLifetime());
