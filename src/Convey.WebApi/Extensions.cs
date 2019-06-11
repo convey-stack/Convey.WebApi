@@ -24,6 +24,7 @@ namespace Convey.WebApi
 {
     public static class Extensions
     {
+        private static readonly byte[] EmptyJsonRequestBytes = Encoding.UTF8.GetBytes("An empty JSON was sent.");
         private static readonly JsonSerializer Serializer = new JsonSerializer();
         private const string SectionName = "webapi";
         private const string RegistryName = "webapi";
@@ -201,20 +202,38 @@ namespace Convey.WebApi
 
         public static T ReadJson<T>(this HttpContext httpContext)
         {
+            if (httpContext.Request.Body is null)
+            {
+                httpContext.Response.StatusCode = 400;
+                httpContext.Response.Body.Write(EmptyJsonRequestBytes, 0, EmptyJsonRequestBytes.Length);
+
+                return default;
+            }
+
             using (var streamReader = new StreamReader(httpContext.Request.Body))
             using (var jsonTextReader = new JsonTextReader(streamReader))
             {
-                var obj = Serializer.Deserialize<T>(jsonTextReader);
-                var results = new List<ValidationResult>();
-                if (Validator.TryValidateObject(obj, new ValidationContext(obj), results))
+                try
                 {
-                    return obj;
+                    var payload = Serializer.Deserialize<T>(jsonTextReader);
+                    var results = new List<ValidationResult>();
+                    if (Validator.TryValidateObject(payload, new ValidationContext(payload), results))
+                    {
+                        return payload;
+                    }
+
+                    httpContext.Response.StatusCode = 400;
+                    httpContext.Response.WriteJson(results);
+
+                    return default;
                 }
+                catch
+                {
+                    httpContext.Response.StatusCode = 400;
+                    httpContext.Response.Body.Write(EmptyJsonRequestBytes, 0, EmptyJsonRequestBytes.Length);
 
-                httpContext.Response.StatusCode = 400;
-                httpContext.Response.WriteJson(results);
-
-                return default(T);
+                    return default;
+                }
             }
         }
 

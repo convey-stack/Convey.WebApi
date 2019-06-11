@@ -92,8 +92,8 @@ namespace Convey.WebApi
         {
             var httpContext = req.HttpContext;
             var request = httpContext.ReadJson<T>();
-
-            return context?.Invoke(request, httpContext);
+            
+            return request is null ? Task.CompletedTask : context?.Invoke(request, httpContext);
         }
 
         private static Task BuildQueryContext<T>(HttpRequest req, Func<T, HttpContext, Task> context = null)
