@@ -274,7 +274,13 @@ namespace Convey.WebApi
                 return default;
             }
 
-            return (T) Convert.ChangeType(value, typeof(T));
+            var data = value?.ToString();
+            if (string.IsNullOrWhiteSpace(data))
+            {
+                return default;
+            }
+
+            return (T) Convert.ChangeType(data, typeof(T));
         }
     }
 }
