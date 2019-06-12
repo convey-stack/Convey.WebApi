@@ -24,7 +24,7 @@ namespace Convey.WebApi
 {
     public static class Extensions
     {
-        private static readonly byte[] EmptyJsonRequestBytes = Encoding.UTF8.GetBytes("An empty JSON was sent.");
+        private static readonly byte[] InvalidJsonRequestBytes = Encoding.UTF8.GetBytes("An invalid JSON was sent.");
         private static readonly JsonSerializer Serializer = new JsonSerializer();
         private const string SectionName = "webapi";
         private const string RegistryName = "webapi";
@@ -205,7 +205,7 @@ namespace Convey.WebApi
             if (httpContext.Request.Body is null)
             {
                 httpContext.Response.StatusCode = 400;
-                httpContext.Response.Body.Write(EmptyJsonRequestBytes, 0, EmptyJsonRequestBytes.Length);
+                httpContext.Response.Body.Write(InvalidJsonRequestBytes, 0, InvalidJsonRequestBytes.Length);
 
                 return default;
             }
@@ -230,7 +230,7 @@ namespace Convey.WebApi
                 catch
                 {
                     httpContext.Response.StatusCode = 400;
-                    httpContext.Response.Body.Write(EmptyJsonRequestBytes, 0, EmptyJsonRequestBytes.Length);
+                    httpContext.Response.Body.Write(InvalidJsonRequestBytes, 0, InvalidJsonRequestBytes.Length);
 
                     return default;
                 }
@@ -266,5 +266,15 @@ namespace Convey.WebApi
 
         private static bool HasRouteData(this HttpRequest request)
             => request.HttpContext.GetRouteData().Values.Any();
+
+        public static T BindFromPath<T>(this HttpContext context, string key)
+        {
+            if (!context.GetRouteData().Values.TryGetValue(key, out var value))
+            {
+                return default;
+            }
+
+            return (T) Convert.ChangeType(value, typeof(T));
+        }
     }
 }

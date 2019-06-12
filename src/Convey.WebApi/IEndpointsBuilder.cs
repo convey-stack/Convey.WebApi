@@ -14,6 +14,5 @@ namespace Convey.WebApi
         IEndpointsBuilder Put(string path, Func<HttpContext, Task> context = null);
         IEndpointsBuilder Put<T>(string path, Func<T, HttpContext, Task> context = null) where T : class;
         IEndpointsBuilder Delete(string path, Func<HttpContext, Task> context = null);
-        IEndpointsBuilder Delete<T>(string path, Func<T, HttpContext, Task> context = null) where T : class;
     }
 }

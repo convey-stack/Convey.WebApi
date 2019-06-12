@@ -79,14 +79,6 @@ namespace Convey.WebApi
             return this;
         }
 
-        public IEndpointsBuilder Delete<T>(string path, Func<T, HttpContext, Task> context = null) where T : class
-        {
-            _routeBuilder.MapDelete(path, (req, res, data) => BuildQueryContext(req, context));
-            AddEndpointDefinition<T>(HttpMethods.Delete, path);
-
-            return this;
-        }
-
         private static Task BuildRequestContext<T>(HttpRequest req, Func<T, HttpContext, Task> context = null)
             where T : class
         {
