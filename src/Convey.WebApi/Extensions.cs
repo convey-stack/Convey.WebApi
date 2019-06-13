@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
@@ -267,11 +268,19 @@ namespace Convey.WebApi
         private static bool HasRouteData(this HttpRequest request)
             => request.HttpContext.GetRouteData().Values.Any();
 
-        public static T BindFromPath<T>(this HttpContext context, string key)
+        public static string Args(this HttpContext context, string key)
+            => context.Args<string>(key);
+
+        public static T Args<T>(this HttpContext context, string key)
         {
             if (!context.GetRouteData().Values.TryGetValue(key, out var value))
             {
                 return default;
+            }
+
+            if (typeof(T) == typeof(string) && value is string)
+            {
+                return (T) value;
             }
 
             var data = value?.ToString();
@@ -279,8 +288,8 @@ namespace Convey.WebApi
             {
                 return default;
             }
-
-            return (T) Convert.ChangeType(data, typeof(T));
+            
+            return (T) TypeDescriptor.GetConverter(typeof(T)).ConvertFromInvariantString(data);
         }
     }
 }
