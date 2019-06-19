@@ -4,6 +4,15 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
+  <PropertyGroup>
+    <Description>Convey.WebApi</Description>
+    <Authors>DevMentors.io</Authors>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <AssemblyName>Convey.WebApi</AssemblyName>
+    <Title>Convey.WebApi</Title>
+    <PackageId>Convey.WebApi</PackageId>
+    <PackageTags>Convey.WebApi</PackageTags>
+  </PropertyGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'Debug'">
     <ProjectReference Include="..\..\..\Convey\src\Convey\Convey.csproj" />
