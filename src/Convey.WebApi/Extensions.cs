@@ -26,7 +26,12 @@ namespace Convey.WebApi
     public static class Extensions
     {
         private static readonly byte[] InvalidJsonRequestBytes = Encoding.UTF8.GetBytes("An invalid JSON was sent.");
-        private static readonly JsonSerializer Serializer = new JsonSerializer();
+
+        private static readonly JsonSerializer Serializer = new JsonSerializer
+        {
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            Formatting = Formatting.Indented
+        };
         private const string SectionName = "webapi";
         private const string RegistryName = "webapi";
         private const string EmptyJsonObject = "{}";
