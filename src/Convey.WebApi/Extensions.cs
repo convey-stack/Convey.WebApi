@@ -30,8 +30,10 @@ namespace Convey.WebApi
         private static readonly JsonSerializer Serializer = new JsonSerializer
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
-            Formatting = Formatting.Indented
+            Formatting = Formatting.Indented,
+            Converters = {new StringEnumConverter(new CamelCaseNamingStrategy())}
         };
+
         private const string SectionName = "webapi";
         private const string RegistryName = "webapi";
         private const string EmptyJsonObject = "{}";
@@ -293,7 +295,7 @@ namespace Convey.WebApi
             {
                 return default;
             }
-            
+
             return (T) TypeDescriptor.GetConverter(typeof(T)).ConvertFromInvariantString(data);
         }
     }
