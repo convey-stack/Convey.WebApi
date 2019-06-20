@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
+using Convey.WebApi.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -29,7 +31,7 @@ namespace Convey.WebApi
         {
             _routeBuilder.MapGet(path, (req, res, data) => BuildQueryContext(req, context));
             AddEndpointDefinition<T>(HttpMethods.Get, path);
-            
+
             return this;
         }
 
@@ -53,7 +55,7 @@ namespace Convey.WebApi
         {
             _routeBuilder.MapPost(path, (req, res, data) => BuildCommandContext(req, context));
             AddEndpointDefinition<T>(HttpMethods.Post, path);
-            
+
             return this;
         }
 
@@ -85,7 +87,7 @@ namespace Convey.WebApi
         {
             _routeBuilder.MapDelete(path, (req, res, data) => BuildQueryContext(req, context));
             AddEndpointDefinition<T>(HttpMethods.Delete, path);
-            
+
             return this;
         }
 
@@ -148,7 +150,9 @@ namespace Convey.WebApi
                         In = method == HttpMethods.Get ? "query" : "body",
                         Name = input?.Name,
                         Type = input?.Name,
-                        Example = input is null ? null : Activator.CreateInstance(input)
+                        Example = input is null
+                            ? null
+                            : FormatterServices.GetUninitializedObject(input).SetDefaultInstanceProperties()
                     }
                 },
                 Responses = new List<WebApiEndpointResponse>
@@ -157,7 +161,9 @@ namespace Convey.WebApi
                     {
                         StatusCode = method == HttpMethods.Get ? 200 : 202,
                         Type = output?.Name,
-                        Example = output is null ? null : Activator.CreateInstance(output)
+                        Example = output is null
+                            ? null
+                            : FormatterServices.GetUninitializedObject(output).SetDefaultInstanceProperties()
                     }
                 }
             });
