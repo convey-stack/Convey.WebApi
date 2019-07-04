@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -26,7 +27,6 @@ namespace Convey.WebApi
     public static class Extensions
     {
         private static readonly byte[] InvalidJsonRequestBytes = Encoding.UTF8.GetBytes("An invalid JSON was sent.");
-
         private static readonly JsonSerializer Serializer = new JsonSerializer
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
@@ -264,9 +264,19 @@ namespace Convey.WebApi
                 }
             }
 
-            return values is null
-                ? JsonConvert.DeserializeObject<T>(EmptyJsonObject)
-                : JsonConvert.DeserializeObject<T>(JsonConvert.SerializeObject(values));
+            if (values is null)
+            {
+                return JsonConvert.DeserializeObject<T>(EmptyJsonObject);
+            }
+
+            var serialized = JsonConvert.SerializeObject(values)
+                .Replace("\\\"", "\"")
+                .Replace("\"{", "{")
+                .Replace("}\"", "}")
+                .Replace("\"[", "[")
+                .Replace("]\"", "]");
+
+            return JsonConvert.DeserializeObject<T>(serialized);
         }
 
         private static bool HasQueryString(this HttpRequest request)
