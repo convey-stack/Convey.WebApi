@@ -6,22 +6,18 @@ namespace Convey.WebApi.Requests
 {
     public class RequestDispatcher : IRequestDispatcher
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceScopeFactory _serviceFactory;
 
-        public RequestDispatcher(IServiceProvider serviceProvider)
+        public RequestDispatcher(IServiceScopeFactory serviceFactory)
         {
-            _serviceProvider = serviceProvider;
+            _serviceFactory = serviceFactory;
         }
 
         public Task<TResult> DispatchAsync<TRequest, TResult>(TRequest request) where TRequest : class, IRequest
         {
-            using (var scope = _serviceProvider.CreateScope())
+            using (var scope = _serviceFactory.CreateScope())
             {
-                var handler = scope.ServiceProvider.GetService<IRequestHandler<TRequest, TResult>>();
-                if (handler is null)
-                {
-                    throw new InvalidOperationException($"Request handler for: '{request}' was not found.");
-                }
+                var handler = scope.ServiceProvider.GetRequiredService<IRequestHandler<TRequest, TResult>>();
 
                 return handler.HandleAsync(request);
             }
